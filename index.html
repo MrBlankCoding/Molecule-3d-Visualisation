@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sodium Bicarbonate (NaHCO₃) 3D Model - Scientific Visualization</title>
+    <style>
+        body { margin: 0; background: #1a1a1a; }
+        canvas { display: block; }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        .panel {
+            position: absolute;
+            color: white;
+            font-family: Arial, sans-serif;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 300px;
+        }
+        #controls {
+            bottom: 10px;
+            left: 10px;
+        }
+        #legend {
+            top: 120px;
+            right: 10px;
+        }
+        #properties {
+            bottom: 10px;
+            right: 10px;
+        }
+        .bond-length {
+            font-size: 0.8em;
+            color: #aaa;
+        }
+        .angle {
+            font-size: 0.8em;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h1>Sodium Bicarbonate (NaHCO₃)</h1>
+        <p>Baking Soda - Molecular Structure with Accurate Bond Lengths and Angles</p>
+    </div>
+    <div id="controls" class="panel">
+        <strong>Controls:</strong><br>
+        • Drag to rotate<br>
+        • Scroll to zoom<br>
+        • Double-click to reset view
+    </div>
+    <div id="legend" class="panel">
+        <strong>Atomic Structure:</strong><br>
+        Na⁺ (Purple) - Sodium ion [1.02Å radius]<br>
+        H (White) - Hydrogen [0.25Å radius]<br>
+        C (Grey) - Carbon [0.70Å radius]<br>
+        O (Red) - Oxygen [0.60Å radius]<br>
+        <br>
+        <strong>Bond Lengths:</strong><br>
+        C-O (double): 1.23Å<br>
+        C-O (single): 1.35Å<br>
+        O-H: 0.96Å<br>
+        <br>
+        <strong>Bond Angles:</strong><br>
+        O-C-O: 120°<br>
+        C-O-H: 108.5°
+    </div>
+    <div id="properties" class="panel">
+        <strong>Chemical Properties:</strong><br>
+        • Molar mass: 84.007 g/mol<br>
+        • Density: 2.20 g/cm³<br>
+        • pH (solution): ~8.3<br>
+        • Melting point: Decomposes at 50°C<br>
+        <br>
+        <strong>Applications:</strong><br>
+        • Baking (leavening agent)<br>
+        • Antacid (neutralizes stomach acid)<br>
+        • Fire extinguisher agent<br>
+        • Cleaning agent
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a1a);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Enhanced lighting for better visibility
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+        const pointLight1 = new THREE.PointLight(0xffffff, 0.8);
+        pointLight1.position.set(10, 10, 10);
+        scene.add(pointLight1);
+        const pointLight2 = new THREE.PointLight(0xffffff, 0.5);
+        pointLight2.position.set(-10, -10, -10);
+        scene.add(pointLight2);
+
+        function createAtom(color, radius, metallic = false) {
+            const geometry = new THREE.SphereGeometry(radius, 32, 32);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: color,
+                shininess: metallic ? 100 : 30,
+                specular: metallic ? 0x666666 : 0x444444
+            });
+            return new THREE.Mesh(geometry, material);
+        }
+
+        function createBond(start, end, isDouble = false) {
+            const direction = new THREE.Vector3().subVectors(end, start);
+            const length = direction.length();
+            const bondGroup = new THREE.Group();
+
+            if (isDouble) {
+                const offset = 0.12;
+                const perpendicular = new THREE.Vector3(direction.y, -direction.x, 0).normalize().multiplyScalar(offset);
+                
+                const geometry1 = new THREE.CylinderGeometry(0.04, 0.04, length, 12);
+                const geometry2 = new THREE.CylinderGeometry(0.04, 0.04, length, 12);
+                const material = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                
+                const bond1 = new THREE.Mesh(geometry1, material);
+                const bond2 = new THREE.Mesh(geometry2, material);
+                
+                bond1.position.copy(start).add(perpendicular);
+                bond2.position.copy(start).sub(perpendicular);
+                
+                bond1.position.lerp(end.clone().add(perpendicular), 0.5);
+                bond2.position.lerp(end.clone().sub(perpendicular), 0.5);
+                
+                bond1.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+                bond2.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+                
+                bondGroup.add(bond1);
+                bondGroup.add(bond2);
+            } else {
+                const geometry = new THREE.CylinderGeometry(0.06, 0.06, length, 12);
+                const material = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                const bond = new THREE.Mesh(geometry, material);
+                bond.position.copy(start).lerp(end, 0.5);
+                bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+                bondGroup.add(bond);
+            }
+            
+            return bondGroup;
+        }
+
+        const molecule = new THREE.Group();
+
+        // Create atoms with accurate relative sizes and positions
+        const sodium = createAtom(0x9933FF, 1.02, true); // Sodium ion with actual ionic radius
+        sodium.position.set(2.5, 0, 0);
+
+        const carbon = createAtom(0x808080, 0.70); // Carbon with actual atomic radius
+        carbon.position.set(0, 0, 0);
+
+        const oxygen1 = createAtom(0xFF0000, 0.60); // Double-bonded oxygen
+        oxygen1.position.set(0, 1.23, 0); // Using actual C=O bond length
+
+        const oxygen2 = createAtom(0xFF0000, 0.60);
+        oxygen2.position.set(-1.17, -0.675, 0); // Positioned at 120° with C-O single bond length
+
+        const oxygen3 = createAtom(0xFF0000, 0.60);
+        oxygen3.position.set(1.17, -0.675, 0); // Positioned at 120°
+
+        const hydrogen = createAtom(0xFFFFFF, 0.25); // Hydrogen with actual atomic radius
+        hydrogen.position.set(-1.8, -1.1, 0); // Positioned with actual O-H bond length and angle
+
+        // Add atoms to molecule
+        molecule.add(sodium);
+        molecule.add(carbon);
+        molecule.add(oxygen1);
+        molecule.add(oxygen2);
+        molecule.add(oxygen3);
+        molecule.add(hydrogen);
+
+        // Add bonds with accurate lengths
+        molecule.add(createBond(carbon.position, oxygen1.position, true));
+        molecule.add(createBond(carbon.position, oxygen2.position));
+        molecule.add(createBond(carbon.position, oxygen3.position));
+        molecule.add(createBond(oxygen2.position, hydrogen.position));
+
+        scene.add(molecule);
+
+        camera.position.z = 8;
+
+        // Interactive controls
+        let mouseDown = false;
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousedown', (e) => {
+            mouseDown = true;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        document.addEventListener('mouseup', () => {
+            mouseDown = false;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (mouseDown) {
+                const deltaX = e.clientX - mouseX;
+                const deltaY = e.clientY - mouseY;
+                
+                molecule.rotation.y += deltaX * 0.01;
+                molecule.rotation.x += deltaY * 0.01;
+                
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+        });
+
+        document.addEventListener('dblclick', () => {
+            molecule.rotation.set(0, 0, 0);
+            camera.position.z = 8;
+        });
+
+        document.addEventListener('wheel', (e) => {
+            camera.position.z += e.deltaY * 0.01;
+            camera.position.z = Math.max(4, Math.min(camera.position.z, 20));
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (!mouseDown) {
+                molecule.rotation.y += 0.002;
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
