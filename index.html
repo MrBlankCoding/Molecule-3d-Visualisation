@@ -1,427 +1,449 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Ethan Chem Project</title>
-    <style>
-        body { 
-            margin: 0; 
-            background: #1a1a1a;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            overflow: hidden;
-        }
-        canvas { display: block; }
-        #info {
-            position: absolute;
-            top: 10px;
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            text-align: center;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-            pointer-events: none;
-            z-index: 10;
-        }
-        .panel {
-            position: absolute;
-            color: white;
-            background: rgba(0,0,0,0.8);
-            padding: 15px;
-            border-radius: 12px;
-            max-width: 300px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            backdrop-filter: blur(5px);
-            transition: opacity 0.3s;
-        }
-        #controls {
-            bottom: 20px;
-            left: 20px;
-        }
-        #viewControls {
-            top: 20px;
-            right: 20px;
-        }
-        button {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 4px;
-        }
-        button:hover {
-            background: rgba(255,255,255,0.2);
-        }
-        .tooltip {
-            position: absolute;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            pointer-events: none;
-            z-index: 100;
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <div id="info">
-        <h1>Baking soda</h1>
-        <p>Interactive 3D Molecular Structure Visualization</p>
-    </div>
-    <div id="controls" class="panel">
-        <strong>Controls:</strong><br>
-        • Left-click + drag to rotate<br>
-        • Right-click + drag to pan<br>
-        • Scroll to zoom<br>
-        • Double-click to reset view<br>
-        • Hover over atoms for details<br>
-        <div class="button-group">
+   <head>
+      <title>Ethan Chem Project</title>
+      <style>
+body {
+	margin: 0;
+	background: #1a1a1a;
+	font-family: 'Segoe UI', Arial, sans-serif;
+	overflow: hidden;
+}
+
+canvas {
+	display: block;
+}
+
+#info {
+	position: absolute;
+	top: 10px;
+	width: 100%;
+	padding: 10px;
+	box-sizing: border-box;
+	text-align: center;
+	color: white;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+	pointer-events: none;
+	z-index: 10;
+}
+
+.panel {
+	position: absolute;
+	color: white;
+	background: rgba(0, 0, 0, 0.8);
+	padding: 15px;
+	border-radius: 12px;
+	max-width: 300px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+	backdrop-filter: blur(5px);
+	transition: opacity 0.3s;
+}
+
+#controls {
+	bottom: 20px;
+	left: 20px;
+}
+
+#viewControls {
+	top: 20px;
+	right: 20px;
+}
+
+button {
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: white;
+	padding: 8px 12px;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.3s;
+	margin: 4px;
+}
+
+button:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.tooltip {
+	position: absolute;
+	background: rgba(0, 0, 0, 0.8);
+	color: white;
+	padding: 5px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	pointer-events: none;
+	z-index: 100;
+	display: none;
+}
+      </style>
+   </head>
+   <body>
+      <div id="info">
+         <h1>Baking soda</h1>
+         <p>3D Visualization</p>
+      </div>
+      <div id="controls" class="panel">
+         <strong>Controls:</strong><br>
+         • Left-click + drag to rotate<br>
+         • Right-click + drag to pan<br>
+         • Scroll to zoom<br>
+         • Double-click to reset view<br>
+         • Hover over atoms for details<br>
+         <div class="button-group">
             <button onclick="toggleRotation()">Toggle Rotation</button>
-        </div>
-    </div>
-    <div id="viewControls" class="panel">
-        <strong>View Options:</strong><br>
-        <button onclick="setViewMode('ball-stick')">Ball and Stick</button>
-        <button onclick="setViewMode('wireframe')">Wireframe</button>
-    </div>
-    <div class="tooltip"></div>
+         </div>
+      </div>
+      <div id="viewControls" class="panel">
+         <strong>View Options:</strong><br>
+         <button onclick="setViewMode('ball-stick')">Ball and Stick</button>
+         <button onclick="setViewMode('wireframe')">Wireframe</button>
+      </div>
+      <div class="tooltip"></div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+      <script>
+         let isRotating = true;
+         let viewMode = 'ball-stick';
+         const scene = new THREE.Scene();
+         scene.background = new THREE.Color(0x1a1a1a);
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        let isRotating = true;
-        let isVibrating = false;
-        let viewMode = 'ball-stick';
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a1a);
-        
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 8;
+         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+         camera.position.z = 8;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
+         const renderer = new THREE.WebGLRenderer({
+             antialias: true
+         });
+         renderer.setSize(window.innerWidth, window.innerHeight);
+         renderer.setPixelRatio(window.devicePixelRatio);
+         renderer.shadowMap.enabled = true;
+         document.body.appendChild(renderer.domElement);
 
-        // Enhanced lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambientLight);
+         // lighting
+         const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(5, 5, 5);
-        directionalLight.castShadow = true;
-        scene.add(directionalLight);
+         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+         directionalLight.position.set(5, 5, 5);
+         directionalLight.castShadow = true;
+         scene.add(directionalLight);
 
-        const pointLight1 = new THREE.PointLight(0xffffff, 0.6);
-        pointLight1.position.set(-5, -5, -5);
-        scene.add(pointLight1);
+         const pointLight1 = new THREE.PointLight(0xffffff, 0.6);
+         pointLight1.position.set(-5, -5, -5);
+         scene.add(pointLight1);
 
-        // Raycaster for interaction
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        const tooltip = document.querySelector('.tooltip');
+         // Raycaster for interaction
+         const raycaster = new THREE.Raycaster();
+         const mouse = new THREE.Vector2();
+         const tooltip = document.querySelector('.tooltip');
 
-        function createAtom(color, radius, metallic = false, name = '', properties = {}) {
-            const geometry = new THREE.SphereGeometry(radius, 32, 32);
-            const material = new THREE.MeshPhysicalMaterial({
-                color: color,
-                metalness: metallic ? 0.8 : 0.1,
-                roughness: metallic ? 0.2 : 0.7,
-                clearcoat: metallic ? 0.8 : 0.3,
-                clearcoatRoughness: 0.2,
-                envMapIntensity: 1.0
-            });
-            const atom = new THREE.Mesh(geometry, material);
-            atom.castShadow = true;
-            atom.receiveShadow = true;
-            atom.userData = { ...properties, name, type: 'atom', originalRadius: radius };
-            return atom;
-        }
+         function createAtom(color, radius, metallic = false, name = '', properties = {}) {
+             const geometry = new THREE.SphereGeometry(radius, 32, 32);
+             const material = new THREE.MeshPhysicalMaterial({
+                 color: color,
+                 metalness: metallic ? 0.8 : 0.1,
+                 roughness: metallic ? 0.2 : 0.7,
+                 clearcoat: metallic ? 0.8 : 0.3,
+                 clearcoatRoughness: 0.2,
+                 envMapIntensity: 1.0,
+                 wireframe: false
+             });
+             const atom = new THREE.Mesh(geometry, material);
+             atom.castShadow = true;
+             atom.receiveShadow = true;
+             atom.userData = {
+                 ...properties,
+                 name,
+                 type: 'atom',
+                 originalRadius: radius
+             };
+             return atom;
+         }
 
-        function createBond(start, end, isDouble = false) {
-            const direction = new THREE.Vector3().subVectors(end, start);
-            const length = direction.length();
-            const bondGroup = new THREE.Group();
+         function createBond(start, end, isDouble = false) {
+             const direction = new THREE.Vector3().subVectors(end, start);
+             const length = direction.length();
+             const bondGroup = new THREE.Group();
 
-            // Create gradient colors for bonds
-            const startColor = new THREE.Color(0x666666);
-            const endColor = new THREE.Color(0x444444);
+             // Gradient for bonds
+             const startColor = new THREE.Color(0x666666);
+             const endColor = new THREE.Color(0x444444);
 
-            if (isDouble) {
-                const offset = 0.12;
-                const perpendicular = new THREE.Vector3(direction.y, -direction.x, 0).normalize().multiplyScalar(offset);
-                
-                const geometry = new THREE.CylinderGeometry(0.04, 0.04, length, 16, 8);
-                // Add vertex colors for gradient
-                const colors = new Float32Array(geometry.attributes.position.count * 3);
-                const positions = geometry.attributes.position.array;
-                
-                for (let i = 0; i < geometry.attributes.position.count; i++) {
-                    const y = positions[i * 3 + 1];
-                    const color = new THREE.Color().lerpColors(startColor, endColor, (y + length/2) / length);
-                    colors[i * 3] = color.r;
-                    colors[i * 3 + 1] = color.g;
-                    colors[i * 3 + 2] = color.b;
-                }
-                
-                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-                
-                const material = new THREE.MeshPhysicalMaterial({
-                    vertexColors: true,
-                    metalness: 0.1,
-                    roughness: 0.5,
-                    clearcoat: 0.3
-                });
+             if (isDouble) {
+                 const offset = 0.12;
+                 const perpendicular = new THREE.Vector3(direction.y, -direction.x, 0).normalize().multiplyScalar(offset);
 
-                const bond1 = new THREE.Mesh(geometry, material);
-                const bond2 = new THREE.Mesh(geometry.clone(), material);
-                
-                bond1.position.copy(start).add(perpendicular);
-                bond2.position.copy(start).sub(perpendicular);
-                
-                bond1.position.lerp(end.clone().add(perpendicular), 0.5);
-                bond2.position.lerp(end.clone().sub(perpendicular), 0.5);
-                
-                bond1.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-                bond2.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-                
-                bondGroup.add(bond1);
-                bondGroup.add(bond2);
-            } else {
-                const geometry = new THREE.CylinderGeometry(0.06, 0.06, length, 16, 8);
-                // Add vertex colors for gradient
-                const colors = new Float32Array(geometry.attributes.position.count * 3);
-                const positions = geometry.attributes.position.array;
-                
-                for (let i = 0; i < geometry.attributes.position.count; i++) {
-                    const y = positions[i * 3 + 1];
-                    const color = new THREE.Color().lerpColors(startColor, endColor, (y + length/2) / length);
-                    colors[i * 3] = color.r;
-                    colors[i * 3 + 1] = color.g;
-                    colors[i * 3 + 2] = color.b;
-                }
-                
-                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-                
-                const material = new THREE.MeshPhysicalMaterial({
-                    vertexColors: true,
-                    metalness: 0.1,
-                    roughness: 0.5,
-                    clearcoat: 0.3
-                });
+                 const geometry = new THREE.CylinderGeometry(0.04, 0.04, length, 16, 8);
+                 const colors = new Float32Array(geometry.attributes.position.count * 3);
+                 const positions = geometry.attributes.position.array;
 
-                const bond = new THREE.Mesh(geometry, material);
-                bond.position.copy(start).lerp(end, 0.5);
-                bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-                bondGroup.add(bond);
-            }
-            
-            bondGroup.castShadow = true;
-            bondGroup.receiveShadow = true;
-            return bondGroup;
-        }
+                 for (let i = 0; i < geometry.attributes.position.count; i++) {
+                     const y = positions[i * 3 + 1];
+                     const color = new THREE.Color().lerpColors(startColor, endColor, (y + length / 2) / length);
+                     colors[i * 3] = color.r;
+                     colors[i * 3 + 1] = color.g;
+                     colors[i * 3 + 2] = color.b;
+                 }
 
-        const molecule = new THREE.Group();
+                 geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-        // Create atoms with enhanced properties
-        const sodium = createAtom(0x9933FF, 1.02, true, 'Na⁺', {
-            fullName: 'Sodium',
-            charge: '+1',
-            atomicNumber: 11,
-            atomicWeight: '22.99 g/mol'
-        });
-        sodium.position.set(2.5, 0, 0);
+                 const material = new THREE.MeshPhysicalMaterial({
+                     vertexColors: true,
+                     metalness: 0.1,
+                     roughness: 0.5,
+                     clearcoat: 0.3,
+                     wireframe: false
+                 });
 
-        const carbon = createAtom(0x808080, 0.70, false, 'C', {
-            fullName: 'Carbon',
-            charge: '0',
-            atomicNumber: 6,
-            atomicWeight: '12.01 g/mol'
-        });
-        carbon.position.set(0, 0, 0);
+                 const bond1 = new THREE.Mesh(geometry, material);
+                 const bond2 = new THREE.Mesh(geometry.clone(), material);
 
-        const oxygen1 = createAtom(0xFF0000, 0.60, false, 'O', {
-            fullName: 'Oxygen',
-            charge: '0',
-            atomicNumber: 8,
-            atomicWeight: '16.00 g/mol'
-        });
-        oxygen1.position.set(0, 1.23, 0);
+                 bond1.position.copy(start).add(perpendicular);
+                 bond2.position.copy(start).sub(perpendicular);
 
-        const oxygen2 = createAtom(0xFF0000, 0.60, false, 'O', {
-            fullName: 'Oxygen',
-            charge: '-1',
-            atomicNumber: 8,
-            atomicWeight: '16.00 g/mol'
-        });
-        oxygen2.position.set(-1.17, -0.675, 0);
+                 bond1.position.lerp(end.clone().add(perpendicular), 0.5);
+                 bond2.position.lerp(end.clone().sub(perpendicular), 0.5);
 
-        const oxygen3 = createAtom(0xFF0000, 0.60, false, 'O', {
-            fullName: 'Oxygen',
-            charge: '0',
-            atomicNumber: 8,
-            atomicWeight: '16.00 g/mol'
-        });
-        oxygen3.position.set(1.17, -0.675, 0);
+                 bond1.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+                 bond2.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
 
-        const hydrogen = createAtom(0xFFFFFF, 0.25, false, 'H', {
-            fullName: 'Hydrogen',
-            charge: '0',
-            atomicNumber: 1,
-            atomicWeight: '1.008 g/mol'
-        });
-        hydrogen.position.set(-1.8, -1.1, 0);
+                 bondGroup.add(bond1);
+                 bondGroup.add(bond2);
+             } else {
+                 const geometry = new THREE.CylinderGeometry(0.06, 0.06, length, 16, 8);
+                 const colors = new Float32Array(geometry.attributes.position.count * 3);
+                 const positions = geometry.attributes.position.array;
 
-        const atoms = [sodium, carbon, oxygen1, oxygen2, oxygen3, hydrogen];
-        atoms.forEach(atom => molecule.add(atom));
+                 for (let i = 0; i < geometry.attributes.position.count; i++) {
+                     const y = positions[i * 3 + 1];
+                     const color = new THREE.Color().lerpColors(startColor, endColor, (y + length / 2) / length);
+                     colors[i * 3] = color.r;
+                     colors[i * 3 + 1] = color.g;
+                     colors[i * 3 + 2] = color.b;
+                 }
 
-        // Create bonds
-        const bonds = [
-            createBond(carbon.position, oxygen1.position, true),
-            createBond(carbon.position, oxygen2.position),
-            createBond(carbon.position, oxygen3.position),
-            createBond(oxygen2.position, hydrogen.position)
-        ];
-        bonds.forEach(bond => molecule.add(bond));
+                 geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-        scene.add(molecule);
+                 const material = new THREE.MeshPhysicalMaterial({
+                     vertexColors: true,
+                     metalness: 0.1,
+                     roughness: 0.5,
+                     clearcoat: 0.3,
+                     wireframe: false
+                 });
 
-        // Interaction handling
-        function onMouseMove(event) {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                 const bond = new THREE.Mesh(geometry, material);
+                 bond.position.copy(start).lerp(end, 0.5);
+                 bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+                 bondGroup.add(bond);
+             }
 
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(atoms);
+             bondGroup.castShadow = true;
+             bondGroup.receiveShadow = true;
+             return bondGroup;
+         }
 
-            if (intersects.length > 0) {
-                const atom = intersects[0].object;
-                const userData = atom.userData;
-                
-                tooltip.style.display = 'block';
-                tooltip.style.left = event.clientX + 10 + 'px';
-                tooltip.style.top = event.clientY + 10 + 'px';
-                tooltip.innerHTML = `
-                    ${userData.fullName} (${userData.name})<br>
-                    Atomic Number: ${userData.atomicNumber}<br>
-                    Atomic Weight: ${userData.atomicWeight}<br>
-                    Charge: ${userData.charge}
-                `;
-                
-                // Highlight atom
-                atom.material.emissive.setHex(0x666666);
-            } else {
-                tooltip.style.display = 'none';
-                atoms.forEach(atom => atom.material.emissive.setHex(0x000000));
-            }
-        }
+         const molecule = new THREE.Group();
 
-        // View mode functions
-        function setViewMode(mode) {
-            viewMode = mode;
-            atoms.forEach(atom => {
-                switch(mode) {
-                    case 'ball-stick':
-                        atom.scale.setScalar(1);
-                        break;
-                    case 'wireframe':
-                        atom.scale.setScalar(0.5);
-                        break;
-                }
-            });
-            
-            bonds.forEach(bondGroup => {
-                bondGroup.children.forEach(bond => {
-                    bond.material.wireframe = (mode === 'wireframe');
-                });
-            });
-        }
 
-        // Animation controls
-        function toggleRotation() {
-            isRotating = !isRotating;
-        }
+         const sodium = createAtom(0x9933FF, 1.02, true, 'Na⁺', {
+             fullName: 'Sodium',
+             charge: '+1',
+             atomicNumber: 11,
+             atomicWeight: '22.99 g/mol'
+         });
+         sodium.position.set(-3.0, -0.675, 0);
 
-        // Event listeners
-        document.addEventListener('mousemove', onMouseMove);
-        
-        let mouseDown = false;
-        let rightMouseDown = false;
-        let mouseX = 0;
-        let mouseY = 0;
+         const carbon = createAtom(0x808080, 0.70, false, 'C', {
+             fullName: 'Carbon',
+             charge: '0',
+             atomicNumber: 6,
+             atomicWeight: '12.01 g/mol'
+         });
+         carbon.position.set(0, 0, 0);
 
-        document.addEventListener('mousedown', (e) => {
-            if (e.button === 0) {
-                mouseDown = true;
-            } else if (e.button === 2) {
-                rightMouseDown = true;
-            }
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
+         const oxygen1 = createAtom(0xFF0000, 0.60, false, 'O', {
+             fullName: 'Oxygen',
+             charge: '0',
+             atomicNumber: 8,
+             atomicWeight: '16.00 g/mol'
+         });
+         oxygen1.position.set(0, 1.23, 0);
 
-        document.addEventListener('mouseup', (e) => {
-            if (e.button === 0) {
-                mouseDown = false;
-            } else if (e.button === 2) {
-                rightMouseDown = false;
-            }
-        });
+         const oxygen2 = createAtom(0xFF0000, 0.60, false, 'O', {
+             fullName: 'Oxygen',
+             charge: '-1',
+             atomicNumber: 8,
+             atomicWeight: '16.00 g/mol'
+         });
+         oxygen2.position.set(-1.17, -0.675, 0);
 
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
+         const oxygen3 = createAtom(0xFF0000, 0.60, false, 'O', {
+             fullName: 'Oxygen',
+             charge: '0',
+             atomicNumber: 8,
+             atomicWeight: '16.00 g/mol'
+         });
+         oxygen3.position.set(1.17, -0.675, 0);
 
-        document.addEventListener('mousemove', (e) => {
-            if (mouseDown) {
-                const deltaX = e.clientX - mouseX;
-                const deltaY = e.clientY - mouseY;
-                
-                molecule.rotation.y += deltaX * 0.01;
-                molecule.rotation.x += deltaY * 0.01;
-            } else if (rightMouseDown) {
-                const deltaX = e.clientX - mouseX;
-                const deltaY = e.clientY - mouseY;
-                
-                camera.position.x -= deltaX * 0.01;
-                camera.position.y += deltaY * 0.01;
-            }
-            
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
+         const hydrogen = createAtom(0xFFFFFF, 0.25, false, 'H', {
+             fullName: 'Hydrogen',
+             charge: '0',
+             atomicNumber: 1,
+             atomicWeight: '1.008 g/mol'
+         });
+         hydrogen.position.set(1.8, -1.1, 0);
 
-        document.addEventListener('dblclick', () => {
-            molecule.rotation.set(0, 0, 0);
-            camera.position.set(0, 0, 8);
-        });
+         const atoms = [sodium, carbon, oxygen1, oxygen2, oxygen3, hydrogen];
+         atoms.forEach(atom => molecule.add(atom));
 
-        document.addEventListener('wheel', (e) => {
-            camera.position.z += e.deltaY * 0.01;
-            camera.position.z = Math.max(4, Math.min(camera.position.z, 20));
-        });
+         // Create bonds
+         const bonds = [
+             createBond(carbon.position, oxygen1.position, true),
+             createBond(carbon.position, oxygen2.position),
+             createBond(carbon.position, oxygen3.position),
+             createBond(oxygen3.position, hydrogen.position),
+             createBond(sodium.position, oxygen2.position)
+         ];
+         bonds.forEach(bond => molecule.add(bond));
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+         scene.add(molecule);
 
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            if (isRotating && !mouseDown && !rightMouseDown) {
-                molecule.rotation.y += 0.005;
-            }
-            
-            
-            renderer.render(scene, camera);
-        }
+         // Interaction handling
+         function onMouseMove(event) {
+             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        animate();
-    </script>
-</body>
+             raycaster.setFromCamera(mouse, camera);
+             const intersects = raycaster.intersectObjects(atoms);
+
+             if (intersects.length > 0) {
+                 const atom = intersects[0].object;
+                 const userData = atom.userData;
+
+                 tooltip.style.display = 'block';
+                 tooltip.style.left = event.clientX + 10 + 'px';
+                 tooltip.style.top = event.clientY + 10 + 'px';
+                 tooltip.innerHTML = `
+                             ${userData.fullName} (${userData.name})<br>
+                             Atomic Number: ${userData.atomicNumber}<br>
+                             Atomic Weight: ${userData.atomicWeight}<br>
+                             Charge: ${userData.charge}
+                         `;
+
+                 // Highlight atom
+                 atom.material.emissive.setHex(0x666666);
+             } else {
+                 tooltip.style.display = 'none';
+                 atoms.forEach(atom => atom.material.emissive.setHex(0x000000));
+             }
+         }
+
+         // View mode functions
+         function setViewMode(mode) {
+             viewMode = mode;
+             atoms.forEach(atom => {
+                 switch (mode) {
+                     case 'ball-stick':
+                         atom.scale.setScalar(1);
+                         atom.material.wireframe = false;
+                         break;
+                     case 'wireframe':
+                         atom.scale.setScalar(0.8);
+                         atom.material.wireframe = true;
+                         break;
+                 }
+             });
+
+             bonds.forEach(bondGroup => {
+                 bondGroup.children.forEach(bond => {
+                     bond.material.wireframe = (mode === 'wireframe');
+                     // Adjust bond visibility in wireframe mode
+                     bond.material.opacity = mode === 'wireframe' ? 0.7 : 1;
+                     bond.material.transparent = mode === 'wireframe';
+                 });
+             });
+         }
+
+         // Animation controls
+         function toggleRotation() {
+             isRotating = !isRotating;
+         }
+
+         // Event listeners
+         document.addEventListener('mousemove', onMouseMove);
+
+         let mouseDown = false;
+         let rightMouseDown = false;
+         let mouseX = 0;
+         let mouseY = 0;
+
+         document.addEventListener('mousedown', (e) => {
+             if (e.button === 0) {
+                 mouseDown = true;
+             } else if (e.button === 2) {
+                 rightMouseDown = true;
+             }
+             mouseX = e.clientX;
+             mouseY = e.clientY;
+         });
+
+         document.addEventListener('mouseup', (e) => {
+             if (e.button === 0) {
+                 mouseDown = false;
+             } else if (e.button === 2) {
+                 rightMouseDown = false;
+             }
+         });
+
+         document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+         document.addEventListener('mousemove', (e) => {
+             if (mouseDown) {
+                 const deltaX = e.clientX - mouseX;
+                 const deltaY = e.clientY - mouseY;
+
+                 molecule.rotation.y += deltaX * 0.01;
+                 molecule.rotation.x += deltaY * 0.01;
+             } else if (rightMouseDown) {
+                 const deltaX = e.clientX - mouseX;
+                 const deltaY = e.clientY - mouseY;
+
+                 camera.position.x -= deltaX * 0.01;
+                 camera.position.y += deltaY * 0.01;
+             }
+
+             mouseX = e.clientX;
+             mouseY = e.clientY;
+         });
+
+         document.addEventListener('dblclick', () => {
+             molecule.rotation.set(0, 0, 0);
+             camera.position.set(0, 0, 8);
+         });
+
+         document.addEventListener('wheel', (e) => {
+             camera.position.z += e.deltaY * 0.01;
+             camera.position.z = Math.max(4, Math.min(camera.position.z, 20));
+         });
+
+         window.addEventListener('resize', () => {
+             camera.aspect = window.innerWidth / window.innerHeight;
+             camera.updateProjectionMatrix();
+             renderer.setSize(window.innerWidth, window.innerHeight);
+         });
+
+         // Animation loop
+         function animate() {
+             requestAnimationFrame(animate);
+
+             if (isRotating && !mouseDown && !rightMouseDown) {
+                 molecule.rotation.y += 0.005;
+             }
+
+
+             renderer.render(scene, camera);
+         }
+
+         animate();
+      </script>
+   </body>
 </html>
