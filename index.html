@@ -1,108 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sodium Bicarbonate (NaHCO₃) 3D Model - Scientific Visualization</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background: #1a1a1a;
-            margin: 0;
-            font-family: 'Arial', sans-serif;
+        body { margin: 0; background: #1a1a1a; }
+        canvas { display: block; }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+            pointer-events: none;
         }
-        canvas {
-            display: block;
-        }
-        .card {
-            background-color: rgba(0, 0, 0, 0.75);
+        .panel {
+            position: absolute;
+            color: white;
+            font-family: Arial, sans-serif;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
             border-radius: 8px;
-            padding: 1rem;
             max-width: 300px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
         }
-        .card:hover {
-            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.8);
+        #controls {
+            bottom: 10px;
+            left: 10px;
         }
-        h1 {
-            font-size: 2.5rem;
-            margin: 0;
-            color: #fff;
+        #legend {
+            top: 120px;
+            right: 10px;
         }
-        p {
-            font-size: 1rem;
-            margin-top: 0.5rem;
-            color: #bbb;
+        #properties {
+            bottom: 10px;
+            right: 10px;
         }
-        .text-gray-900 {
-            color: #f5f5f5;
+        .bond-length {
+            font-size: 0.8em;
+            color: #aaa;
         }
-        .text-gray-400 {
-            color: #ccc;
-        }
-        .legend li {
-            margin-bottom: 0.5rem;
-        }
-        .legend span {
-            font-weight: bold;
+        .angle {
+            font-size: 0.8em;
+            color: #aaa;
         }
     </style>
 </head>
-<body class="bg-gray-900">
-
-    <div id="info" class="absolute top-10 left-1/2 transform -translate-x-1/2 text-center text-white text-2xl font-semibold shadow-md">
+<body>
+    <div id="info">
         <h1>Sodium Bicarbonate (NaHCO₃)</h1>
         <p>Baking Soda - Molecular Structure with Accurate Bond Lengths and Angles</p>
     </div>
-
-    <div id="controls" class="absolute bottom-10 left-10 bg-black bg-opacity-70 text-white p-4 rounded-lg max-w-xs shadow-lg">
+    <div id="controls" class="panel">
         <strong>Controls:</strong><br>
         • Drag to rotate<br>
         • Scroll to zoom<br>
         • Double-click to reset view
     </div>
-
-    <div id="legend" class="absolute top-24 right-10 card text-white">
+    <div id="legend" class="panel">
         <strong>Atomic Structure:</strong><br>
-        <ul class="legend text-gray-400">
-            <li><span>Na⁺ (Purple):</span> Sodium ion [1.02Å radius]</li>
-            <li><span>H (White):</span> Hydrogen [0.25Å radius]</li>
-            <li><span>C (Grey):</span> Carbon [0.70Å radius]</li>
-            <li><span>O (Red):</span> Oxygen [0.60Å radius]</li>
-        </ul>
+        Na⁺ (Purple) - Sodium ion [1.02Å radius]<br>
+        H (White) - Hydrogen [0.25Å radius]<br>
+        C (Grey) - Carbon [0.70Å radius]<br>
+        O (Red) - Oxygen [0.60Å radius]<br>
         <br>
         <strong>Bond Lengths:</strong><br>
-        <ul class="legend text-gray-400">
-            <li><span>C-O (double):</span> 1.23Å</li>
-            <li><span>C-O (single):</span> 1.35Å</li>
-            <li><span>O-H:</span> 0.96Å</li>
-        </ul>
+        C-O (double): 1.23Å<br>
+        C-O (single): 1.35Å<br>
+        O-H: 0.96Å<br>
         <br>
         <strong>Bond Angles:</strong><br>
-        <ul class="legend text-gray-400">
-            <li><span>O-C-O:</span> 120°</li>
-            <li><span>C-O-H:</span> 108.5°</li>
-        </ul>
+        O-C-O: 120°<br>
+        C-O-H: 108.5°
     </div>
-
-    <div id="properties" class="absolute bottom-10 right-10 card text-white">
+    <div id="properties" class="panel">
         <strong>Chemical Properties:</strong><br>
-        <ul class="legend text-gray-400">
-            <li><span>Molar mass:</span> 84.007 g/mol</li>
-            <li><span>Density:</span> 2.20 g/cm³</li>
-            <li><span>pH (solution):</span> ~8.3</li>
-            <li><span>Melting point:</span> Decomposes at 50°C</li>
-        </ul>
+        • Molar mass: 84.007 g/mol<br>
+        • Density: 2.20 g/cm³<br>
+        • pH (solution): ~8.3<br>
+        • Melting point: Decomposes at 50°C<br>
         <br>
         <strong>Applications:</strong><br>
-        <ul class="legend text-gray-400">
-            <li>Baking (leavening agent)</li>
-            <li>Antacid (neutralizes stomach acid)</li>
-            <li>Fire extinguisher agent</li>
-            <li>Cleaning agent</li>
-        </ul>
+        • Baking (leavening agent)<br>
+        • Antacid (neutralizes stomach acid)<br>
+        • Fire extinguisher agent<br>
+        • Cleaning agent
     </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         const scene = new THREE.Scene();
