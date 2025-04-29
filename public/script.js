@@ -340,7 +340,7 @@ class Methane extends Molecule {
     const sin_phi = 1 / 3,
       cos_phi = (2 * Math.sqrt(2)) / 3;
 
-    const positions = [new vector(0, 1, 0)];
+    const positions = [new vector(0, 1, 0).multiplyScalar(1.5)];
     const atoms = [];
     positions.push(new vector(cos_phi, -sin_phi, 0).multiplyScalar(1.5));
     positions.push(
