@@ -4,8 +4,8 @@
   "description": "A 3D molecule visualisation tool using Three.js.",
   "main": "public/script.js",
   "scripts": {
-    "start": "npx serve public",
-    "dev": "npx serve public -l 3000"
+    "dev": "npx serve public -l 3000",
+    "build": "npx serve public"
   },
   "keywords": [
     "threejs",
