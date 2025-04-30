@@ -662,6 +662,253 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+// Import export functionality
+// Feel free to build on it or impove it
+
+// export 
+function exportMolecule() {
+  const currentMolecule = currentSelectedMolecule;
+  
+  // moleculte data struct
+  const exportData = {
+    name: document.getElementById("info").querySelector("h1").textContent,
+    atoms: [],
+    bonds: []
+  };
+  
+  // extract atom data
+  currentMolecule.atoms.forEach(atom => {
+    exportData.atoms.push({
+      type: atom.userData.name,
+      position: {
+        x: atom.position.x,
+        y: atom.position.y,
+        z: atom.position.z
+      },
+      charge: atom.userData.charge || "0",
+      properties: {
+        fullName: atom.userData.fullName,
+        atomicNumber: atom.userData.atomicNumber,
+        atomicWeight: atom.userData.atomicWeight
+      }
+    });
+  });
+  
+  // extract bond data
+  currentMolecule.bonds.forEach(bondGroup => {
+    const isDouble = bondGroup.children.length > 1;
+    
+    // find endpoints
+    const bondMesh = bondGroup.children[0];
+    const direction = new THREE.Vector3(0, 1, 0);
+    direction.applyQuaternion(bondMesh.quaternion);
+    
+    // calculate start and end positions of endpoints
+    const length = bondMesh.geometry.parameters.height;
+    const start = bondMesh.position.clone().sub(direction.clone().multiplyScalar(length/2));
+    const end = bondMesh.position.clone().add(direction.clone().multiplyScalar(length/2));
+    
+    // find the closest atoms to the start and end positions
+    const startAtomIndex = findClosestAtomIndex(start, currentMolecule.atoms);
+    const endAtomIndex = findClosestAtomIndex(end, currentMolecule.atoms);
+    
+    if (startAtomIndex !== -1 && endAtomIndex !== -1) {
+      exportData.bonds.push({
+        atom1Index: startAtomIndex,
+        atom2Index: endAtomIndex,
+        isDouble: isDouble
+      });
+    }
+  });
+  
+  const jsonData = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([jsonData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${exportData.name.replace(/\s+/g, '_').toLowerCase()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  
+  // clean up
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 0);
+}
+
+// find the closest atom index to a given point
+function findClosestAtomIndex(point, atoms) {
+  let closestDistance = Infinity;
+  let closestIndex = -1;
+  
+  atoms.forEach((atom, index) => {
+    const distance = point.distanceTo(atom.position);
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestIndex = index;
+    }
+  });
+  
+  return closestIndex;
+}
+
+// simple import function
+// this is a basic implementation, feel free to improve it
+function importMolecule() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = event => {
+      try {
+        const data = JSON.parse(event.target.result);
+        createMoleculeFromImport(data);
+      } catch (error) {
+        alert('failed to parse' + error.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  
+  input.click();
+}
+
+// create a molecule from imported data
+function createMoleculeFromImport(data) {
+  if (!data.atoms || !data.bonds || !data.name) {
+    alert('Invalid format');
+    return;
+  }
+  
+  class ImportedMolecule extends Molecule {
+    constructor(data) {
+      super();
+      
+      // create atoms
+      const atomObjects = [];
+      data.atoms.forEach(atomData => {
+        let atom;
+        const position = new THREE.Vector3(
+          atomData.position.x, 
+          atomData.position.y, 
+          atomData.position.z
+        );
+        
+        // create the appropriate atom type
+        // Note: You can add more atom types as needed
+        switch(atomData.type) {
+          case 'C':
+            atom = new Carbon(position, atomData.charge);
+            break;
+          case 'O':
+            atom = new Oxygen(position, atomData.charge);
+            break;
+          case 'H':
+            atom = new Hydrogen(position, atomData.charge);
+            break;
+          case 'N':
+            atom = new Nitrogen(position, atomData.charge);
+            break;
+          case 'Na⁺':
+            atom = new Sodium(position, atomData.charge);
+            break;
+          default:
+            // fallback to generic atom
+            atom = new Atom(
+              position, 
+              0xdddddd, 
+              0.5, 
+              false, 
+              atomData.type,
+              {
+                fullName: atomData.properties?.fullName || atomData.type,
+                charge: atomData.charge || "0",
+                atomicNumber: atomData.properties?.atomicNumber || 0,
+                atomicWeight: atomData.properties?.atomicWeight || "0 g/mol"
+              }
+            );
+        }
+        
+        this.addAtom(atom);
+        atomObjects.push(atom);
+      });
+      
+      // createa boonds
+      data.bonds.forEach(bondData => {
+        if (bondData.atom1Index >= 0 && bondData.atom2Index >= 0 &&
+            bondData.atom1Index < atomObjects.length && 
+            bondData.atom2Index < atomObjects.length) {
+          const bond = new Bond(
+            atomObjects[bondData.atom1Index], 
+            atomObjects[bondData.atom2Index],
+            bondData.isDouble
+          );
+          this.addBond(bond);
+        }
+      });
+    }
+  }
+  
+  // create the imported molecule
+  const importedMolecule = new ImportedMolecule(data);
+  molecules.forEach(molecule => molecule.hide());
+  
+  // add to UI
+  molecules.push(importedMolecule);
+  const nextIndex = molecules.length - 1;
+  buttons.set(data.name, nextIndex);
+  addMoleculeButton(data.name);
+  setMolecule(data.name);
+  importedMolecule.setViewModeTo(viewMode);
+}
+
+// add a button for the import
+function addMoleculeButton(name) {
+  const viewControls = document.getElementById('viewControls');
+  const moleculesSection = viewControls.querySelector('strong:contains("Molecules:")');
+  const buttons = viewControls.querySelectorAll('button');
+  const lastButton = buttons[buttons.length - 1];
+  
+  const newButton = document.createElement('button');
+  newButton.textContent = name;
+  newButton.onclick = () => setMolecule(name);
+  
+  // its not clean but it works
+  if (buttons.length % 2 === 0) {
+    const br = document.createElement('br');
+    moleculesSection.parentNode.insertBefore(br, lastButton.nextSibling);
+    moleculesSection.parentNode.insertBefore(newButton, br.nextSibling);
+  } else {
+    moleculesSection.parentNode.insertBefore(newButton, lastButton.nextSibling);
+  }
+}
+
+// custom querySelector to find elements by text content
+Document.prototype.querySelector = function(selector) {
+  if (selector.includes(':contains')) {
+    const parts = selector.split(':contains');
+    const element = parts[0];
+    const text = parts[1].replace(/[()'"]/g, '');
+    
+    const elements = document.querySelectorAll(element);
+    for (let i = 0; i < elements.length; i++) {
+      if (elements[i].textContent.includes(text)) {
+        return elements[i];
+      }
+    }
+    return null;
+  }
+  return this.querySelectorAll(selector)[0];
+};
+
+Element.prototype.querySelector = Document.prototype.querySelector;
+
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);

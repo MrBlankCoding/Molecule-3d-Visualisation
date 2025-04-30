@@ -2,6 +2,7 @@
 <html>
    <head>
       <title>Molecule 3d Visualisation</title>
+      <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
       <link rel="stylesheet" href="style.css">
    </head>
    <body>
@@ -21,7 +22,12 @@
          <strong>View Options:</strong><br/>
          <button onclick="setViewMode('ball-stick')">Ball and Stick</button>
          <button onclick="setViewMode('wireframe')">Wireframe</button>
-         <br/><br/><strong>Molecules:</strong><br/>
+         <br/><br/>
+         <strong>Import/Export:</strong><br/>
+         <button onclick="exportMolecule()">Export Current Molecule</button>
+         <button onclick="importMolecule()">Import Molecule</button>
+         <br/><br/>
+         <strong>Molecules:</strong><br/>
          <button onclick="setMolecule('Baking soda')">Baking soda</button>
          <button onclick="setMolecule('Lactate')">Lactate</button><br/>
          <button onclick="setMolecule('Ethanol')">Ethanol</button>
