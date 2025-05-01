@@ -70,3 +70,13 @@ button:hover {
     z-index: 100;
     display: none;
 }
+
+#loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    display: none;
+}

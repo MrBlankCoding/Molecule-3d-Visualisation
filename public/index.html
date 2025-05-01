@@ -1,42 +1,45 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <title>Molecule 3d Visualisation</title>
-      <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-      <link rel="stylesheet" href="style.css">
-   </head>
-   <body>
-      <div id="info"></div>
-      <div id="controls" class="panel">
-         <strong>Controls:</strong><br>
-         • Left-click + drag to rotate<br>
-         • Right-click + drag to pan<br>
-         • Scroll to zoom<br>
-         • Double-click to reset view<br>
-         • Hover over atoms for details<br>
-         <div class="button-group">
-            <button onclick="toggleRotation()">Toggle Rotation</button>
-         </div>
+  <head>
+    <title>Molecule 3d Visualisation</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="info"></div>
+    <div id="controls" class="panel">
+      <strong>Controls:</strong><br />
+      • Left-click + drag to rotate<br />
+      • Right-click + drag to pan<br />
+      • Scroll to zoom<br />
+      • Double-click to reset view<br />
+      • Hover over atoms for details<br />
+      <div class="button-group">
+        <button onclick="toggleRotation()">Toggle Rotation</button>
       </div>
-      <div id="viewControls" class="panel">
-         <strong>View Options:</strong><br/>
-         <button onclick="setViewMode('ball-stick')">Ball and Stick</button>
-         <button onclick="setViewMode('wireframe')">Wireframe</button>
-         <br/><br/>
-         <strong>Import/Export:</strong><br/>
-         <button onclick="exportMolecule()">Export Current Molecule</button>
-         <button onclick="importMolecule()">Import Molecule</button>
-         <br/><br/>
-         <strong>Molecules:</strong><br/>
-         <button onclick="setMolecule('Baking soda')">Baking soda</button>
-         <button onclick="setMolecule('Lactate')">Lactate</button><br/>
-         <button onclick="setMolecule('Ethanol')">Ethanol</button>
-         <button onclick="setMolecule('Methane')">Methane</button><br/>
-         <button onclick="setMolecule('Ammonia')">Ammonia</button>
-         <button onclick="setMolecule('Water')">Water</button><br/>
-      </div>
-      <div class="tooltip"></div>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-      <script src="script.js"></script>
-   </body>
+    </div>
+    <div id="viewControls" class="panel">
+      <strong>View Options:</strong><br />
+      <button onclick="setViewMode('ball-stick')">Ball and Stick</button>
+      <button onclick="setViewMode('wireframe')">Wireframe</button>
+      <br /><br />
+      <strong>Import/Export:</strong><br />
+      <button onclick="exportMolecule()">Export Current Molecule</button>
+      <button onclick="importMolecule()">Import Molecule</button>
+      <br /><br />
+      <strong>Molecules:</strong><br />
+      <button onclick="setMolecule('Baking soda')">Baking soda</button>
+      <button onclick="setMolecule('Lactate')">Lactate</button><br />
+      <button onclick="setMolecule('Ethanol')">Ethanol</button>
+      <button onclick="setMolecule('Methane')">Methane</button><br />
+      <button onclick="setMolecule('Ammonia')">Ammonia</button>
+      <button onclick="setMolecule('Water')">Water</button><br />
+    </div>
+    <div id="loading">
+      Loading atom data...
+    </div>
+    <div class="tooltip"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>
