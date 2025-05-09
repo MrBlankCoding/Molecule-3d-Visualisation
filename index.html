@@ -4,6 +4,7 @@
     <title>Molecule 3d Visualisation</title>
     <link rel="icon" type="image/x-icon" href="/static/icons/favicon.ico" />
     <link rel="stylesheet" href="static/styles/style.css" />
+    <link rel="stylesheet" href="static/css/styles.css" />
   </head>
   <body>
     <div id="info"></div>
@@ -28,18 +29,11 @@
       <button onclick="importMolecule()">Import Molecule</button>
       <br /><br />
       <strong>Molecules:</strong><br />
-      <button onclick="setMolecule('Baking soda')">Baking soda</button>
-      <button onclick="setMolecule('Lactate')">Lactate</button><br />
-      <button onclick="setMolecule('Ethanol')">Ethanol</button>
-      <button onclick="setMolecule('Methane')">Methane</button><br />
-      <button onclick="setMolecule('Ammonia')">Ammonia</button>
-      <button onclick="setMolecule('Water')">Water</button><br />
+      <div id="moleculeButtons"></div>
     </div>
-    <div id="loading">
-      Loading atom data...
-    </div>
+    <div id="loading">Loading atom data...</div>
     <div class="tooltip"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="static/js/script.js", type="module"></script>
+    <script src="static/js/script.js" type="module"></script>
   </body>
 </html>

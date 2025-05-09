@@ -94,16 +94,41 @@ let molecules = [];
 let currentSelectedMolecule = null;
 const buttons = new Map();
 
-function initializeMolecules() {
-  // Create buttons for each molecule
-  moleculesData.molecules.forEach((moleculeData, index) => {
-    buttons.set(moleculeData.name, index);
-  });
+function createMoleculeButtons(molecules) {
+  const container = document.getElementById("moleculeButtons");
+  const buttonsPerRow = 2;
 
+  // Create a wrapper for each row
+  for (let i = 0; i < molecules.length; i += buttonsPerRow) {
+    const row = document.createElement("div");
+    row.className = "button-row";
+
+    // Create buttons for this row
+    for (let j = 0; j < buttonsPerRow && i + j < molecules.length; j++) {
+      const molecule = molecules[i + j];
+      const button = document.createElement("button");
+      button.textContent = molecule.name;
+      button.onclick = () => setMolecule(molecule.name);
+      row.appendChild(button);
+    }
+
+    container.appendChild(row);
+  }
+}
+
+function initializeMolecules() {
   // Create molecule objects
   molecules = moleculesData.molecules.map(
     (moleculeData) => new Molecule(moleculeData)
   );
+
+  // Create buttons for each molecule
+  createMoleculeButtons(moleculesData.molecules);
+
+  // Create button mapping
+  moleculesData.molecules.forEach((moleculeData, index) => {
+    buttons.set(moleculeData.name, index);
+  });
 
   // Hide all molecules initially
   molecules.forEach((molecule) => {
@@ -113,8 +138,29 @@ function initializeMolecules() {
   // Show first molecule
   currentSelectedMolecule = molecules[0];
   currentSelectedMolecule.show();
-  document.getElementById("info").innerHTML =
-    "<h1>" + moleculesData.molecules[0].name + "</h1><p>3D Visualization</p>";
+
+  const firstMoleculeData = moleculesData.molecules[0];
+  const labels = firstMoleculeData.labels;
+
+  document.getElementById("info").innerHTML = `
+    <h1>${labels.title}</h1>
+    <p class="formula">${firstMoleculeData.formula}</p>
+    <p class="description">${labels.description}</p>
+    <div class="molecule-details">
+      <p><strong>Type:</strong> ${labels.type}</p>
+      <p><strong>Uses:</strong> ${labels.uses.join(", ")}</p>
+      <div class="properties">
+        <h3>Properties</h3>
+        <p><strong>Molar Mass:</strong> ${labels.properties.molarMass}</p>
+        <p><strong>Density:</strong> ${labels.properties.density}</p>
+        <p><strong>${
+          labels.properties.meltingPoint ? "Melting Point" : "Boiling Point"
+        }:</strong> ${
+    labels.properties.meltingPoint || labels.properties.boilingPoint
+  }</p>
+      </div>
+    </div>
+  `;
 
   // start animation
   animate();
@@ -398,9 +444,29 @@ function setMolecule(moleculeName) {
   if (index !== undefined) {
     currentSelectedMolecule = molecules[index];
     currentSelectedMolecule.show();
-    document.getElementById(
-      "info"
-    ).innerHTML = `<h1>${moleculeName}</h1><p>${currentSelectedMolecule.formula}</p>`;
+
+    const moleculeData = moleculesData.molecules[index];
+    const labels = moleculeData.labels;
+
+    document.getElementById("info").innerHTML = `
+      <h1>${labels.title}</h1>
+      <p class="formula">${moleculeData.formula}</p>
+      <p class="description">${labels.description}</p>
+      <div class="molecule-details">
+        <p><strong>Type:</strong> ${labels.type}</p>
+        <p><strong>Uses:</strong> ${labels.uses.join(", ")}</p>
+        <div class="properties">
+          <h3>Properties</h3>
+          <p><strong>Molar Mass:</strong> ${labels.properties.molarMass}</p>
+          <p><strong>Density:</strong> ${labels.properties.density}</p>
+          <p><strong>${
+            labels.properties.meltingPoint ? "Melting Point" : "Boiling Point"
+          }:</strong> ${
+      labels.properties.meltingPoint || labels.properties.boilingPoint
+    }</p>
+        </div>
+      </div>
+    `;
   } else {
     console.error(`Molecule ${moleculeName} not found`);
   }

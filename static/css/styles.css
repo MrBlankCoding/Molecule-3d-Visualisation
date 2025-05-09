@@ -1,0 +1,143 @@
+#info {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(40, 40, 40, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  max-width: 300px;
+  font-family: Arial, sans-serif;
+  color: #e0e0e0;
+}
+
+#info h1 {
+  margin: 0 0 10px 0;
+  color: #ffffff;
+  font-size: 24px;
+}
+
+#info .formula {
+  font-size: 18px;
+  color: #b0b0b0;
+  margin: 0 0 15px 0;
+}
+
+#info .description {
+  color: #d0d0d0;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+#info .molecule-details {
+  border-top: 1px solid #555;
+  padding-top: 15px;
+}
+
+#info .molecule-details p {
+  margin: 5px 0;
+  color: #d0d0d0;
+}
+
+#info .properties {
+  margin-top: 15px;
+}
+
+#info .properties h3 {
+  margin: 0 0 10px 0;
+  color: #ffffff;
+  font-size: 16px;
+}
+
+#info strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Molecule button styles */
+#moleculeButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.button-row {
+  display: flex;
+  gap: 5px;
+  justify-content: flex-start;
+}
+
+.button-row button {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #e0e0e0;
+}
+
+.button-row button:hover {
+  background-color: #3a3a3a;
+  border-color: #555;
+  color: #ffffff;
+}
+
+.button-row button:active {
+  background-color: #4a4a4a;
+  transform: translateY(1px);
+}
+
+/* Update panel styles to match dark theme */
+.panel {
+  background: rgba(40, 40, 40, 0.9);
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+.panel strong {
+  color: #ffffff;
+}
+
+.panel button {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  color: #e0e0e0;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.panel button:hover {
+  background-color: #3a3a3a;
+  border-color: #555;
+  color: #ffffff;
+}
+
+.panel button:active {
+  background-color: #4a4a4a;
+  transform: translateY(1px);
+}
+
+/* Update tooltip styles */
+.tooltip {
+  background: rgba(40, 40, 40, 0.9);
+  color: #e0e0e0;
+  border: 1px solid #444;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Update loading text */
+#loading {
+  color: #e0e0e0;
+  background: rgba(40, 40, 40, 0.9);
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #444;
+} 
